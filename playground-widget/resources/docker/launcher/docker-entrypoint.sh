@@ -17,4 +17,15 @@ if [ "$ENABLE_DEBUG" == "true" ]; then
     JVM_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT"
 fi
 
-exec java $JVM_ARGS -jar -Dballerina.home=/ballerina/runtime -Dtransports.netty.conf=/api/netty-transports.yml /api/playground-launcher.jar
+LAUNCHER_CLASSPATH="/api/playground-launcher.jar"
+for j in "$BALLERINA_HOME"/bre/lib/*.jar
+do
+    LAUNCHER_CLASSPATH="$LAUNCHER_CLASSPATH":$j
+done
+
+exec java $JVM_ARGS \
+    -Dballerina.home=/ballerina/runtime \
+    -Dtransports.netty.conf=/api/netty-transports.yml \
+    -classpath "$LAUNCHER_CLASSPATH" \
+    org.ballerinalang.platform.playground.launcher.ServiceRunner
+     
